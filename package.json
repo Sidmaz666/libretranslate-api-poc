@@ -1,0 +1,31 @@
+{
+  "name": "libretranslate-api-poc",
+  "version": "0.1.0",
+  "description": "A simple Node app built on fastify, instantly up and running.",
+  "main": "glitch_server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "fastify": "^4.21.0",
+    "handlebars": "^4.7.8",
+    "@fastify/view": "^8.0.0",
+    "@fastify/static": "^6.10.2",
+    "@fastify/formbody": "^7.4.0",
+    "axios": "^1.7.7",
+    "axios-cookiejar-support": "^5.0.3",
+    "tough-cookie": "^5.0.0"
+  },
+  "engines": {
+    "node": "14.x"
+  },
+  "repository": {
+    "url": "https://glitch.com/edit/#!/glitch-mvp-node"
+  },
+  "license": "MIT",
+  "keywords": [
+    "node",
+    "glitch"
+  ]
+}
+
