@@ -107,7 +107,7 @@ async function getCookiesAndExtractKey(payload) {
                 jsContent.split('self[_=String.fromCharCode,')[1].split(' },\n')[0]).trim();
             console.log(REQLINES)
             const extract = decodeObfuscatedString(REQLINES);
-            payload.secret = atob(extract.value);
+            payload.secret = Buffer.from(extract.value, 'base64').toString('utf-8');
             console.log('Extracted secret:', {extract});
             console.log('Updated payload with secret:', payload);
         }
