@@ -132,6 +132,7 @@ async function getCookiesAndExtractKey(payload) {
 
         const jsonResponse = res.data;
         console.log('Translation response:', jsonResponse);
+       return jsonResponse;
     } catch (error) {
         console.error('Error in getCookiesAndExtractKey:', error);
     }
