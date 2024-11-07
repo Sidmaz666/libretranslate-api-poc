@@ -53,22 +53,34 @@ function decodeObfuscatedString(obfuscatedString) {
 }
 
 // Function to fetch JS file content with specified headers
-async function fetchJSFileContent(url) {
-    try {
-        const response = await client.get(url, {
-            headers: {
-                'referer': 'https://libretranslate.com/',
-                'sec-ch-ua': '"Brave";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
-                'sec-ch-ua-mobile': '?0',
-                'sec-ch-ua-platform': '"Linux"',
-                'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36'
-            }
-        });
+async function fetchJSFileContent(url,cookie) {
+  try {
+       const response = await axios.get(url, {
+	headers: {
+	  "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+	  "accept-language": "en-US,en;q=0.7",
+	  "cache-control": "max-age=0",
+	  "priority": "u=0, i",
+	  "sec-ch-ua": "\"Brave\";v=\"129\", \"Not=A?Brand\";v=\"8\", \"Chromium\";v=\"129\"",
+	  "sec-ch-ua-mobile": "?0",
+	  "sec-ch-ua-platform": "\"Linux\"",
+	  "sec-fetch-dest": "document",
+	  "sec-fetch-mode": "navigate",
+	  "sec-fetch-site": "none",
+	  "sec-fetch-user": "?1",
+	  "sec-gpc": "1",
+	  "upgrade-insecure-requests": "1",
+	  "cookie": cookie
+	},
+	"referrerPolicy": "strict-origin-when-cross-origin",
+	"body": null,
+	"method": "GET"
+	});
         console.log('Fetched JS file content successfully.');
         return response.data;
     } catch (error) {
         console.error('Error fetching JS file:', error);
-        return null;
+      return null;
     }
 }
 
@@ -94,14 +106,8 @@ async function getCookiesAndExtractKey(payload) {
         const cookieHeader = cookies.join("; ");
         client.defaults.headers.Cookie = cookieHeader;
         console.log('Using cookies for requests:', cookieHeader);
-
-        client.defaults.headers['User-Agent'] = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36';
-        client.defaults.headers['Accept'] = 'text/html,application/xhtml+xml,application/json,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8';
-        client.defaults.headers['Accept-Language'] = 'en-US,en;q=0.7';
-        client.defaults.headers['Accept-Encoding'] = 'gzip, deflate, br, zstd';
-
         console.log('Fetching JS file from URL:', jsUrl);
-        const jsContent = await fetchJSFileContent(jsUrl);
+        const jsContent = await fetchJSFileContent(jsUrl,cookieHeader);
         if (jsContent) {
             const REQLINES = String("self[_=String.fromCharCode," +
                 jsContent.split('self[_=String.fromCharCode,')[1].split(' },\n')[0]).trim();
@@ -113,21 +119,22 @@ async function getCookiesAndExtractKey(payload) {
         }
 
         console.log('Payload for translation:', payload);
-        const res = await client.post(translateUrl, payload, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Cookie': cookieHeader,
-                'origin': 'https://libretranslate.com',
-                'priority': 'u=1, i',
-                'referer': `${translateUrl}?source=${payload.source}&target=${payload.target}&q=${payload.q}%3F`,
-                'sec-ch-ua': '"Brave";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
-                'sec-ch-ua-mobile': '?0',
-                'sec-ch-ua-platform': '"Linux"',
-                'sec-fetch-dest': 'empty',
-                'sec-fetch-mode': 'cors',
-                'sec-fetch-site': 'same-origin',
-                'sec-gpc': '1'
-            }
+        const res = await client.post(translateUrl, JSON.stringify(payload), {
+	  headers: {
+	    'Content-Type': 'application/json',
+	    'Cookie': cookieHeader,
+	    'Origin': 'https://libretranslate.com',
+	    'Priority': 'u=1, i',
+	    'Referer': `${translateUrl}?source=${payload.source}&target=${payload.target}&q=${encodeURIComponent(payload.q)}`,
+	    'Sec-CH-UA': '"Brave";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
+	    'Sec-CH-UA-Mobile': '?0',
+	    'Sec-CH-UA-Platform': '"Linux"',
+	    'Sec-Fetch-Dest': 'empty',
+	    'Sec-Fetch-Mode': 'cors',
+	    'Sec-Fetch-Site': 'same-origin',
+	    'Sec-GPC': '1'
+	  },
+	  responseType: 'json'
         });
 
         const jsonResponse = res.data;
