@@ -1,6 +1,14 @@
+const fastifyCors = require('@fastify/cors');
 const getCookiesAndExtractKey = require('./funcitons/translate');
 // Import required modules
 const fastify = require('fastify')({ logger: true });
+// Enable CORS globally with the new plugin
+fastify.register(fastifyCors, {
+  origin: '*',  // Allow all origins, adjust as needed
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+});
+
 
 const LANGUAGES = [
     {
